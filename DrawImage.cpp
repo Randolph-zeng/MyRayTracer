@@ -17,6 +17,10 @@ int main()
 	world.build();
 	std::cout << "World building completed" << std::endl;
 
+	std::cout << "Setting View Parameters" << std::endl;
+	//world.set_perspective(true);
+	std::cout << "Parameters setting completed" << std::endl;	
+
 	std::cout << "Generating image....." << std::endl;
 	world.render_scene();
 	world.Image->writeToFile("solution.png");

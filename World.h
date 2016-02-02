@@ -64,12 +64,22 @@ public:
 	ShadeRec
 	hit_bare_bones_objects(const Ray& ray);
 
-
-//private:
-
 	void
 	delete_objects(void);
 
+	void set_perspective(const bool isPerspective);
+
+private:
+	bool perspective;
+
+
 };
+
+
+
+inline void World::set_perspective(const bool isPerspective){
+	perspective = isPerspective;
+}
+
 
 #endif /* WORLD_H_ */

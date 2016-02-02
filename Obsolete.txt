@@ -1,0 +1,129 @@
+
+// ---------------------------------------------------------------------------display_pixel
+
+// raw_color is the pixel color computed by the ray tracer
+// its RGB floating point components can be arbitrarily large
+// mapped_color has all components in the range [0, 1], but still floating point
+// display color has integer components for computer display
+// the Mac's components are in the range [0, 65535]
+// a PC's components will probably be in the range [0, 255]
+// the system-dependent code is in the function convert_to_display_color
+// the function SetCPixel is a Mac OS function
+
+//
+//void
+//World::display_pixel(const int row, const int column, const RGBAPixel& raw_color) const {
+//	RGBAPixel mapped_color;
+//
+//	if (vp.show_out_of_gamut)
+//		mapped_color = clamp_to_color(raw_color);
+//	else
+//		mapped_color = max_to_one(raw_color);
+//
+//	if (vp.gamma != 1.0)
+//		mapped_color = mapped_color.powc(vp.inv_gamma);
+//
+//   //have to start from max y coordinate to convert to screen coordinates
+//   int x = column;
+//   int y = vp.vres - row - 1;
+//
+//   paintArea->setPixel(x, y, (int)(mapped_color.r * 255),
+//                             (int)(mapped_color.g * 255),
+//                             (int)(mapped_color.b * 255));
+//}
+//
+
+
+//------------------------------------------------------------------ clamp
+//This function is not needed, in RGBAPixel, the rgb values are bounded by u8int;
+//RGBAPixel
+//World::max_to_one(const RGBAPixel& c) const  {
+//	float max_value = max(c.red, max(c.green, c.blue));
+//
+//	if (max_value > 255)
+//		return (c / max_value);
+//	else
+//		return (c);
+//}
+//
+
+// ------------------------------------------------------------------ clamp_to_color
+// Set color to red if any component is greater than one
+//
+//RGBAPixel
+//World::clamp_to_color(const RGBAPixel& raw_color) const {
+//	RGBAPixel c(raw_color);
+//
+//	if (raw_color.red > 1.0 || raw_color.green > 1.0 || raw_color.blue > 1.0) {
+//		c.red = 1.0; c.green = 0.0; c.blue = 0.0;
+//	}
+//
+//	return (c);
+//}
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ src = http://www.scratchapixel.com/code.php?id=9&origin=/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle
+//  	bool rayTriangleIntersect( 
+//     const Vec3f &orig, const Vec3f &dir, 
+//     const Vec3f &v0, const Vec3f &v1, const Vec3f &v2, 
+//     float &t, float &u, float &v) 
+// { 
+// #ifdef MOLLER_TRUMBORE 
+//     Vec3f v0v1 = v1 - v0; 
+//     Vec3f v0v2 = v2 - v0; 
+//     Vec3f pvec = dir.crossProduct(v0v2); 
+//     float det = v0v1.dotProduct(pvec); 
+// #ifdef CULLING 
+//     // if the determinant is negative the triangle is backfacing
+//     // if the determinant is close to 0, the ray misses the triangle
+//     if (det < kEpsilon) return false; 
+// #else 
+//     // ray and triangle are parallel if det is close to 0
+//     if (fabs(det) < kEpsilon) return false; 
+// #endif 
+//     float invDet = 1 / det; 
+ 
+//     Vec3f tvec = orig - v0; 
+//     u = tvec.dotProduct(pvec) * invDet; 
+//     if (u < 0 || u > 1) return false; 
+ 
+//     Vec3f qvec = tvec.crossProduct(v0v1); 
+//     v = dir.dotProduct(qvec) * invDet; 
+//     if (v < 0 || u + v > 1) return false; 
+ 
+//     t = v0v2.dotProduct(qvec) * invDet; 
+ 
+//     return true; 
+// #else 
+//     // compute plane's normal
+//     Vec3f v0v1 = v1 - v0; 
+//     Vec3f v0v2 = v2 - v0; 
+//     // no need to normalize
+//     Vec3f N = v0v1.crossProduct(v0v2); // N 
+//     float denom = N.dotProduct(N); 
+ 
+//     // Step 1: finding P
+ 
+//     // check if ray and plane are parallel ?
+//     float NdotRayDirection = N.dotProduct(dir); 
+//     if (fabs(NdotRayDirection) < kEpsilon) // almost 0 
+//         return false; // they are parallel so they don't intersect ! 
+ 
+//     // compute d parameter using equation 2
+//     float d = N.dotProduct(v0); 
+ 
+//     // compute t (equation 3)
+//     t = (N.dotProduct(orig) + d) / NdotRayDirection; 
+//     // check if the triangle is in behind the ray
+//     if (t < 0) return false; // the triangle is behind 
+ 
+//     // compute the intersection point using equation 1
+//     Vec3f P = orig + t * dir; 
+ 
+//     // Step 2: inside-outside test
+//    
+// #endif 
+// } 
