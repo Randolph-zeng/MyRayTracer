@@ -17,6 +17,6 @@ const RGBAPixel	black(0,0,0);
 const RGBAPixel	white(255,255,255);
 const RGBAPixel	red(255, 0, 0);
 
-const float 	invRAND_MAX = 1.0 / (float)RAND_MAX;
+const float invRAND_MAX = 1.0 / (float)RAND_MAX;
 
 #endif

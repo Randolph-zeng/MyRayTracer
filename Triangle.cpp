@@ -26,8 +26,10 @@ const double Triangle::kEpsilon = 0.001;
 	//constructor
  }
 
- Triangle::Triangle(Point3D a, Point3D b, Point3D c, Normal normal):vertex1(a),vertex2(b),vertex3(c),n(normal){
+ Triangle::Triangle(Point3D a, Point3D b, Point3D c, Normal normal):vertex1(a),vertex2(b),vertex3(c){
 	//constructor
+	normal.normalize();
+	n = normal;
  }
 
  Triangle::~Triangle(){

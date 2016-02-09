@@ -19,6 +19,8 @@ int main()
 
 	std::cout << "Setting View Parameters" << std::endl;
 	//world.set_perspective(true);
+	world.set_sample_number(5.0);
+	world.set_diffuse(Vector3D(0,0,1),0.75,1.0);
 	std::cout << "Parameters setting completed" << std::endl;	
 
 	std::cout << "Generating image....." << std::endl;

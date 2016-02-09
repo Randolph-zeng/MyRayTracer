@@ -52,11 +52,11 @@ public:
 	void
 	render_scene(void);
 
-	RGBAPixel
-	max_to_one(const RGBAPixel& c) const;
+	// RGBAPixel
+	// max_to_one(const RGBAPixel& c) const;
 
-	RGBAPixel
-	clamp_to_color(const RGBAPixel& c) const;
+	void
+	clamp_to_color( RGBAPixel& c) const;
 
 	void
 	display_pixel(const int row, const int column, const RGBAPixel& pixel_color) const;
@@ -69,17 +69,31 @@ public:
 
 	void set_perspective(const bool isPerspective);
 
+	void set_sample_number(const double number);
+
+	void set_diffuse(Vector3D ld, float kd_, float dif_);
+
+
+	//void set_camera(const double x,const double y,const double z);
+
+
 private:
 	bool perspective;
+	double x;
+	double y;
+	double z;
+	double sample_number;// note that I am using the simplest multi-jittered method here,
+						//did not enforce n-rook property and also did not shuffle
+	Vector3D light_dir;
+	float 	 kd; 		//reflectivity
+	float	 dif_illum;	//diffuse light luminosity
 
 
 };
 
 
 
-inline void World::set_perspective(const bool isPerspective){
-	perspective = isPerspective;
-}
+// inline void World::set_camera(const double x,const double y,const double z){}
 
 
 #endif /* WORLD_H_ */

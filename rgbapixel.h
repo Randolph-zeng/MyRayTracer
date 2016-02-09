@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <ostream>
 
-using std::uint8_t;
+//using std::uint8_t;
 
 /**
  * Represents a single pixel in an image.
@@ -19,10 +19,10 @@ using std::uint8_t;
 class RGBAPixel
 {
 	public:
-		uint8_t red; /**< Byte for the red component of the pixel. */
-		uint8_t green; /**< Byte for the green component of the pixel. */
-		uint8_t blue; /**< Byte for the blue component of the pixel. */
-		uint8_t alpha; /**< Byte for the alpha component of the pixel. */
+		double red; /**< Byte for the red component of the pixel. */
+		double green; /**< Byte for the green component of the pixel. */
+		double blue; /**< Byte for the blue component of the pixel. */
+		double alpha; /**< Byte for the alpha component of the pixel. */
 
         /** @cond POST_MP1 */
 
@@ -45,6 +45,24 @@ class RGBAPixel
 		 */
 		bool operator<(RGBAPixel const & other) const;
 
+
+		/**
+		 * addition operator.
+		 * RGBAPixels.
+		 * @param other Other pixel to add with.
+		 */
+		 RGBAPixel operator+(const RGBAPixel & other);
+
+		 /**
+		 * division operator.
+		 * RGBAPixels.
+		 * @param numbers to be divided
+		 */
+
+		 RGBAPixel operator/(const double number);
+
+		 RGBAPixel operator*(const double number);
+
         /** @endcond */
 
 		/**
@@ -63,7 +81,7 @@ class RGBAPixel
 		 * @param green Green component for the new pixel.
 		 * @param blue Blue component for the new pixel.
 		 */
-		RGBAPixel(uint8_t red, uint8_t green, uint8_t blue);
+		RGBAPixel(double red, double green, double blue);
 
         /** @cond POST_MP1 */
 
@@ -76,14 +94,33 @@ class RGBAPixel
 		 * @param alpha Alpha component for the new pixel (controls
 		 *	transparency).
 		 */
-		RGBAPixel(uint8_t red, uint8_t green, uint8_t blue,
-				  uint8_t alpha);
+		RGBAPixel(double red, double green, double blue,
+				  double alpha);
         
         /** @endcond */
 
 };
 
-/** @cond POST_MP1 */
+
+
+
+inline RGBAPixel
+RGBAPixel::operator+ (const RGBAPixel & other){
+	return RGBAPixel(red+other.red,green+other.green,blue+other.blue);
+}
+
+inline RGBAPixel
+RGBAPixel:: operator/ (const double number){
+
+	return RGBAPixel(red/number,green/number,blue/number);
+}
+
+inline RGBAPixel
+RGBAPixel:: operator* (const double number){
+
+	return RGBAPixel(red*number,green*number,blue*number);
+}
+
 
 /**
  * Stream operator that allows pixels to be written to standard streams

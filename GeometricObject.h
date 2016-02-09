@@ -25,6 +25,9 @@ public:
 
 	virtual ~GeometricObject();
 
+	//It is very important to remember to calculate the normal in the hit point 
+	//and record it in the ShadeRec object. It saves time and can be
+	//used to do phong shading!
 	virtual bool hit(const Ray& ray, double & t, ShadeRec& s) const = 0;
 
 	void
