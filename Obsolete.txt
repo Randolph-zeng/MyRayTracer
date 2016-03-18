@@ -1,4 +1,95 @@
+viewplane.o : ViewPlane.cpp ViewPlane.h 
+	 $(CXX) $(CXXFLAGS) ViewPlane.cpp
 
+png.o : png.cpp png.h rgbapixel.h  
+	$(CXX) $(CXXFLAGS) png.cpp
+
+matrix.o : Matrix.cpp Matrix.h
+	$(CXX) $(CXXFLAGS) Matrix.cpp
+
+rgbapixel.o : rgbapixel.cpp rgbapixel.h
+	$(CXX) $(CXXFLAGS) rgbapixel.cpp
+	
+vector3d.o : Vector3D.cpp Vector3D.h Matrix.h  
+	$(CXX) $(CXXFLAGS) Vector3D.cpp
+	
+Point3D.o : Point3D.cpp Point3D.h Vector3D.h  Matrix.h
+	$(CXX) $(CXXFLAGS) Point3D.cpp
+
+Point2D.o : Point2D.cpp Point2D.h 
+	$(CXX) $(CXXFLAGS) Point2D.cpp
+
+ray.o : Ray.cpp Ray.h Vector3D.h Point3D.h
+	$(CXX) $(CXXFLAGS) Ray.cpp
+
+normal.o : Normal.cpp Normal.h Vector3D.h Point3D.h Matrix.h  
+	$(CXX) $(CXXFLAGS) Normal.cpp
+
+tracer.o : Tracer.cpp Tracer.h Constants.h rgbapixel.h Ray.h World.h 
+	$(CXX) $(CXXFLAGS) Tracer.cpp
+
+MultipleObjects.o : MultipleObjects.cpp MultipleObjects.h Tracer.h ShadeRec.h 
+	$(CXX) $(CXXFLAGS) MultipleObjects.cpp
+
+Whitted.o : Whitted.cpp Whitted.h World.h ShadeRec.h Material.h
+	$(CXX) $(CXXFLAGS) Whitted.cpp	
+
+ShadeRec.o : ShadeRec.cpp ShadeRec.h rgbapixel.h Normal.h Vector3D.h Point3D.h  
+	$(CXX) $(CXXFLAGS) ShadeRec.cpp
+
+GeometricObject.o : GeometricObject.h GeometricObject.cpp rgbapixel.h Point3D.h Normal.h Ray.h ShadeRec.h Constants.h
+	$(CXX) $(CXXFLAGS) GeometricObject.cpp
+
+sphere.o : Sphere.cpp Sphere.h GeometricObject.h
+	$(CXX) $(CXXFLAGS) Sphere.cpp
+
+plane.o : Plane.cpp Plane.h GeometricObject.h
+	$(CXX) $(CXXFLAGS) Plane.cpp
+
+Triangle.o : Triangle.cpp Triangle.h GeometricObject.h
+	$(CXX) $(CXXFLAGS) Triangle.cpp
+
+Light.o : Light.cpp Light.h Constants.h Ray.h rgbapixel.h Vector3D.h ShadeRec.h
+	$(CXX) $(CXXFLAGS) Light.cpp
+
+PointLight.o : PointLight.cpp PointLight.h Light.h
+	$(CXX) $(CXXFLAGS) PointLight.cpp
+
+Ambient.o : Ambient.h Ambient.cpp Light.h
+	$(CXX) $(CXXFLAGS) Ambient.cpp
+
+Camera.o : Camera.h Camera.cpp Point3D.h Vector3D.h
+	$(CXX) $(CXXFLAGS) Camera.cpp
+
+Pinhole.o : Pinhole.h Pinhole.cpp Camera.h png.h Constants.h
+	$(CXX) $(CXXFLAGS) Pinhole.cpp	
+
+Material.o : Material.h Material.cpp rgbapixel.h ShadeRec.h World.h
+	$(CXX) $(CXXFLAGS) Material.cpp
+
+Matte.o : Matte.h Matte.cpp	Material.h Lambertian.h	
+	$(CXX) $(CXXFLAGS) Matte.cpp
+
+Sampler.o : Sampler.h Sampler.cpp Point3D.h Maths.h Point2D.h
+	$(CXX) $(CXXFLAGS) Sampler.cpp
+
+MultiJittered.o : MultiJittered.h MultiJittered.cpp Sampler.h 
+	$(CXX) $(CXXFLAGS) MultiJittered.cpp	
+
+BRDF.o : BRDF.h BRDF.cpp rgbapixel.h Vector3D.h ShadeRec.h Constants.h Sampler.h
+	$(CXX) $(CXXFLAGS) BRDF.cpp
+
+Lambertian.o : Lambertian.h Lambertian.cpp BRDF.h
+	$(CXX) $(CXXFLAGS) Lambertian.cpp 
+
+GlossySpecular.o : GlossySpecular.h GlossySpecular.cpp BRDF.h
+	$(CXX) $(CXXFLAGS) GlossySpecular.cpp 	
+
+world.o : Ray.h Tracer.h Whitted.h GeometricObject.h Sphere.h Plane.h ViewPlane.h ShadeRec.h rgbapixel.h png.h Constants.h Matrix.h Vector3D.h Point2D.h Point3D.h Normal.h Maths.h Light.h PointLight.h Ambient.h Camera.h Pinhole.h Material.h Matte.h Sampler.o MultiJittered.o BRDF.h Lambertian.h GlossySpecular.h World.cpp World.h
+	$(CXX) $(CXXFLAGS) World.cpp	
+		
+drawimage.o : DrawImage.cpp png.o viewplane.o matrix.o rgbapixel.o vector3d.o Point3D.o Point2D.o ray.o normal.o tracer.o Whitted.o ShadeRec.o GeometricObject.o sphere.o plane.o Triangle.o Light.o PointLight.o Ambient.o Camera.o Pinhole.o Material.o Matte.o Sampler.o MultiJittered.o BRDF.o Lambertian.o GlossySpecular.o world.o 
+	$(CXX) $(CXXFLAGS) DrawImage.cpp
 // ---------------------------------------------------------------------------display_pixel
 
 // raw_color is the pixel color computed by the ray tracer
@@ -34,18 +125,7 @@
 //
 
 
-//------------------------------------------------------------------ clamp
-//This function is not needed, in RGBAPixel, the rgb values are bounded by u8int;
-//RGBAPixel
-//World::max_to_one(const RGBAPixel& c) const  {
-//	float max_value = max(c.red, max(c.green, c.blue));
-//
-//	if (max_value > 255)
-//		return (c / max_value);
-//	else
-//		return (c);
-//}
-//
+
 
 // ------------------------------------------------------------------ clamp_to_color
 // Set color to red if any component is greater than one
@@ -60,6 +140,12 @@
 //
 //	return (c);
 //}
+
+
+///////////////////////////////////////
+				// ray.o = Point3D(s * (c - hres / 2.0 + 0.5), s * (r - vres / 2.0 + 0.5), zw);
+				// pixel_color = tracer_ptr->trace_ray(ray);
+				// *( (*Image)(c,vres-r-1) ) = pixel_color;
 
 
 
@@ -127,3 +213,146 @@
 //    
 // #endif 
 // } 
+
+
+
+//move codes to camera class
+
+
+
+
+	void compute_uvw();
+
+	void set_camera(Point3D eye, Point3D lookat, Vector3D up, double distance);
+
+	void render_scene(void);
+	
+void World::set_camera(Point3D eye, Point3D lookat, Vector3D up, double distance){
+	this->distance = distance;
+	this->eye = eye;
+	this->lookat = lookat;
+	this->up = up;
+}
+
+void World::compute_uvw(){
+	w = eye - lookat;
+	w.normalize();
+	u = up ^ w;
+	u.normalize();
+	v = w ^ u;
+}
+
+//pinhole render_scene
+
+	// RGBColor	L;
+	// ViewPlane	vp(w.vp);	 								
+	// Ray			ray;
+	// int 		depth = 0;  
+	// Point2D 	pp;		// sample point on a pixel
+	// int n = (int)sqrt((float)vp.num_samples);
+		
+	// vp.s /= zoom;
+	// ray.o = eye;
+		
+	// for (int r = 0; r < vp.vres; r++)			// up
+	// 	for (int c = 0; c < vp.hres; c++) {		// across 					
+	// 		L = black; 
+			
+	// 		for (int p = 0; p < n; p++)			// up pixel
+	// 			for (int q = 0; q < n; q++) {	// across pixel
+	// 				pp.x = vp.s * (c - 0.5 * vp.hres + (q + 0.5) / n); 
+	// 				pp.y = vp.s * (r - 0.5 * vp.vres + (p + 0.5) / n);
+	// 				ray.d = get_direction(pp);
+	// 				L += w.tracer_ptr->trace_ray(ray, depth);
+	// 			}	
+											
+	// 		L /= vp.num_samples;
+	// 		L *= exposure_time;
+	// 		w.display_pixel(r, c, L);
+	// 	} 
+
+
+
+
+//hit_bare_bones_objects ---------------obsolate since I am doing brdf in different places now
+	
+	for (int j = 0; j < num_objects; j++){
+		if (objects[j]->hit(ray, t, sr) && (t < tmin)) {
+			sr.hit_an_object	= true;
+			tmin 				= t;
+			sr.color			= objects[j]->get_color();
+		
+			Vector3D light_dir = lights[0]->get_direction(sr);
+			double factor = std::max(sr.normal * light_dir,0.0)*kd*dif_illum;
+			sr.color = sr.color*factor;
+			clamp_to_color(sr.color);
+
+		}
+	}
+
+
+Material.o : Material.h Material.cpp rgbapixel.h ShadeRec.h World.h
+	$(CXX) $(CXXFLAGS) Material.cpp	
+
+
+
+	//double		t;
+	//float		tmin 			= kHugeValue;
+	//int 		num_objects 	= objects.size();
+	//Normal 		normal;
+	//Point3D		local_hit_point;
+	// for (int i = 0; i < num_objects; ++i)
+	// {
+	// 	if (objects[i]->hit(ray,t,sr) && (t<tmin))
+	// 	{
+	// 		sr.hit_an_object =true;
+	// 		tmin = t;
+	// 		sr.material_ptr = objects[i]->get_material();
+	// 		sr.hit_point = ray.o+t*ray.d;
+	// 		normal = sr.normal;
+	// 		local_hit_point = sr.local_hit_point;
+	// 	}
+	// }
+
+	// Matte* matte_ptr2 = new Matte;
+	// matte_ptr2->set_ka(0.15);	
+	// matte_ptr2->set_kd(0.85);
+	// matte_ptr2->set_ks(0.1);
+	// matte_ptr2->set_exp(25);	
+	// matte_ptr2->set_cd(RGBAPixel(0.0,255.0,0.0));	
+
+	// Matte* matte_ptr3 = new Matte;
+	// matte_ptr3->set_ka(0.15);	
+	// matte_ptr3->set_kd(0.5);
+	// matte_ptr3->set_ks(0.5);
+	// matte_ptr3->set_exp(25);	
+	// matte_ptr3->set_cd(RGBAPixel(0.0,0.0,255.0));				
+	
+
+	// // use access functions to set centre and radius
+
+	// Sphere* sphere_ptr = new Sphere;
+	// sphere_ptr->set_center(-10, -10, -10);
+	// sphere_ptr->set_radius(27);
+	// sphere_ptr->set_material(matte_ptr1);	
+	// add_object(sphere_ptr);
+
+	// // use constructor to set centre and radius
+
+	// Sphere* sphere_ptr2 = new Sphere(Point3D(-25, -25, -25), 27);
+	// sphere_ptr2->set_material(matte_ptr3);	// yellow
+	// add_object(sphere_ptr2);
+
+	// Sphere* sphere_ptr3 = new Sphere(Point3D(-55, 50, -35), 27);
+	// sphere_ptr3->set_material(matte_ptr2);	// yellow
+	// add_object(sphere_ptr3);
+
+	// Sphere* sphere_ptr4 = new Sphere(Point3D(-75, 73, -14), 27);
+	// sphere_ptr4->set_material(matte_ptr2);	// yellow
+	// add_object(sphere_ptr4);
+
+	// Sphere* sphere_ptr5 = new Sphere(Point3D(0, 0, 0), 27);
+	// sphere_ptr5->set_material(matte_ptr2);	// yellow
+	// add_object(sphere_ptr5);
+	
+	

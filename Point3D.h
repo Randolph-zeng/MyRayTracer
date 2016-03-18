@@ -34,6 +34,11 @@ class Point3D {
 				
 		Point3D 													// multiplication by a double on the right
 		operator* (const double a) const;
+
+		Point3D 													// multiplication by a double on the right
+		operator/ (const float a) const;	
+
+		double operator[](const unsigned int i)const { return (&x)[i]; }	
 		
 		double														// square of distance bertween two points
 		d_squared(const Point3D& p) const;
@@ -91,6 +96,12 @@ Point3D::operator* (const double a) const {
 }
 
 
+inline Point3D
+Point3D::operator/ (const float p) const {
+	return (Point3D( x/p, y/p, z/p));
+}
+
+
 // -------------------------------------------------------------- d_squared
 // the square of the distance between the two points as a member function
 
@@ -116,7 +127,6 @@ inline Point3D
 operator* (double a, const Point3D& p) {
 	return (Point3D(a * p.x, a * p.y, a * p.z));
 }
-
 
 
 // non-inlined non-member function

@@ -53,6 +53,15 @@ Vector3D::~Vector3D (void)
 {}
 
 
+// ---------------------------------------------------------- destructor
+
+float
+Vector3D::distance(const Point3D& p) const {
+	return (sqrt(		(x - p.x) * (x - p.x) 
+					+ 	(y - p.y) * (y - p.y)
+					+	(z - p.z) * (z - p.z) ));
+}
+
 
 // ---------------------------------------------------------- assignment operator
 

@@ -9,6 +9,7 @@
 #define GEOMETRICOBJECTS_PLANE_H_
 
 #include "GeometricObject.h"
+#include "BBox.h" 
 class Plane : public GeometricObject{
 
 public:
@@ -25,7 +26,16 @@ public:
 	virtual ~Plane();
 
 	//note all three parameters are passed by reference
-	virtual bool hit(const Ray&ray, double& tmin, ShadeRec& sr) const;
+	virtual bool hit(const Ray&ray, float& tmin, ShadeRec& sr,IntersectionInfo& I) const;
+
+	bool shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const;
+
+	virtual BBox 
+		getBBox(void)const;
+
+	
+	virtual Vector3D 
+		getCentroid() const;	
 
 
 private:

@@ -69,7 +69,7 @@ Plane::~Plane(void)
 
 
 // ----------------------------------------------------------------- hit
-bool Plane::hit(const Ray& ray, double& tmin, ShadeRec& sr)const{
+bool Plane::hit(const Ray& ray, float& tmin, ShadeRec& sr,IntersectionInfo& I)const{
 	float t = (a-ray.o)*n/(ray.d*n);
 
 	if(t> 0.001){
@@ -83,5 +83,29 @@ bool Plane::hit(const Ray& ray, double& tmin, ShadeRec& sr)const{
 }
 
 
+bool Plane::shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I)const {
+	float t = (a-ray.o)*n/(ray.d*n);
+
+	if(t> 0.001){
+		tmin = t;
+I.t = t;
+		I.object = this;		
+		return true;
+	}
+	return false;
+
+}
+
+
+BBox 
+Plane::getBBox(void)const{
+	
+}
+
+	
+Vector3D 
+Plane::getCentroid() const{
+
+}	
 
 

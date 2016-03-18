@@ -26,6 +26,9 @@ class Vector3D {
 
 		~Vector3D (void);										// destructor
 
+		float
+		distance(const Point3D& p)const;
+
 		Vector3D& 												// assignment operator
 		operator= (const Vector3D& rhs);
 		
@@ -64,6 +67,8 @@ class Vector3D {
 		
 		Vector3D 												// cross product				
 		operator^ (const Vector3D& v) const;
+
+		double operator[](const unsigned int i) { return (&x)[i]; }
 		
 		void 													// convert vector to a unit vector
 		normalize(void); 

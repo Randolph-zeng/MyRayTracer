@@ -12,14 +12,14 @@ RGBAPixel::RGBAPixel() : red(255.0), green(255.0), blue(255.0), alpha(255.0)
 	/* nothing */
 }
 
-RGBAPixel::RGBAPixel(double r, double g, double b)
+RGBAPixel::RGBAPixel(float r, float g, float b)
 	: red(r), green(g), blue(b), alpha(255.0)
 {
 	/* nothing */
 }
 
-RGBAPixel::RGBAPixel(double r, double g, double b,
-		             double a) : red(r), green(g), blue(b), alpha(a)
+RGBAPixel::RGBAPixel(float r, float g, float b,
+		             float a) : red(r), green(g), blue(b), alpha(a)
 {
 	/* nothing */
 }

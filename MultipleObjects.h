@@ -10,7 +10,7 @@
 
 #include "Tracer.h"
 
-
+class Material;
 class World;
 
 class MultipleObjects : public Tracer {

@@ -16,34 +16,34 @@
 #include "Normal.h"
 #include "ShadeRec.h"
 #include "Maths.h"
+#include "PointLight.h"
+#include "Material.h"
+#include "Matte.h"  
 //#419 end
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <iostream>
 
- //----------------------------------------------------------------------
-
-void World::set_perspective(const bool isPerspective){
-	perspective = isPerspective;
-}
-
-
-void World::set_sample_number(const double number){
+void World::set_sample_number(const int number){
 	sample_number = number;
 }
-
-void World::set_diffuse(Vector3D ld, float kd_, float dif_){
-	light_dir = ld;
-	kd = kd_; 	
-	dif_illum = dif_;
-}
-
 
 // -------------------------------------------------------------------- default constructor
 
 World::World(void)
 	:  	background_color(black),
 		tracer_ptr(NULL),
-		Image(NULL),
-		perspective(false)
+		ambient_ptr(new Ambient)	
 {}
+
+
+void World::set_diffuse(float kd_, float dif_){
+
+	kd = kd_; 	
+	dif_illum = dif_;
+}
+
 
 
 
@@ -55,104 +55,14 @@ World::~World(void) {
 		delete tracer_ptr;
 		tracer_ptr = NULL;
 	}
+	if (ambient_ptr)
+	{
+		delete ambient_ptr;
+		ambient_ptr = NULL;
+	}
+
 
 	delete_objects();
-}
-
-
-
-void
-World::clamp_to_color(RGBAPixel& raw_color) const {
-	if (raw_color.red > 255.0)		raw_color.red = 255.0;
-	if (raw_color.green > 255.0)		raw_color.green = 255.0;
-	if (raw_color.blue > 255.0)		raw_color.blue = 255.0;
-	
-}
-
-
-
-//------------------------------------------------------------------ render_scene
-
-// This uses orthographic viewing along the zw axis
-// I removed the const here to initialize the Image variable;
-void
-World::render_scene(void) {
-
-	RGBAPixel	pixel_color;
-	Ray			ray;
-	int 		hres 	= vp.hres;
-	int 		vres 	= vp.vres;
-	float		s		= vp.psize;
-	float		zw		= 100.0;			// hardwired in (z origin of ray)
-
-	Image = new PNG( hres + 1, vres + 1); // not sure if we need to + 1
-
-	//if not perspective, then orthographic
-	if ( !perspective)
-	{
-		ray.d = Vector3D(0, 0, -1);
-		for (int r = 0; r < vres; r++)			// up
-			for (int c = 0; c <= hres; c++) {	// across
-				pixel_color = black;
-				for (int p = 0; p < sample_number; ++p)
-					for (int q = 0; q < sample_number; ++q){
-						double x = s * (c - 0.5 * hres + (q+0.5)/sample_number);
-						double y = s * (r - 0.5 * vres + (p+0.5)/sample_number);
-						ray.o = Point3D(x,y,zw);
-						pixel_color = pixel_color + tracer_ptr->trace_ray(ray);						//
-					}
-								
-				pixel_color = pixel_color/(sample_number*sample_number);
-				*( (*Image)(c,vres-r-1) ) = pixel_color;	
-			}
-
-	}
-	else{
-		ray.o = Point3D(0.0,0.0,zw*2);
-		for (int r = 0; r < vres; r++)			// up
-			for (int c = 0; c <= hres; c++) {	// across
-				pixel_color = black;
-				for (int p = 0; p < sample_number; ++p)
-					for (int q = 0; q < sample_number; ++q){
-						double x = s * (c - 0.5 * hres + (q+0.5)/sample_number);
-						double y = s * (r - 0.5 * vres + (p+0.5)/sample_number);
-						ray.d = Point3D(x,y,-zw);
-						pixel_color = pixel_color + tracer_ptr->trace_ray(ray);						//
-					}
-							
-				pixel_color = pixel_color/(sample_number*sample_number);
-				*( (*Image)(c,vres-r-1) ) = pixel_color;
-			}
-
-
-
-	}
-
-}
-
-// ----------------------------------------------------------------------------- hit_bare_bones_objects
-//Note all the phong shading occurs in here
-ShadeRec
-World::hit_bare_bones_objects(const Ray& ray) {
-	ShadeRec	sr(*this);
-	double		t;
-	float		tmin 			= kHugeValue;
-	int 		num_objects 	= objects.size();
-	
-	for (int j = 0; j < num_objects; j++){
-		if (objects[j]->hit(ray, t, sr) && (t < tmin)) {
-			sr.hit_an_object	= true;
-			tmin 				= t;
-			sr.color			= objects[j]->get_color();
-		
-			double factor = std::max(sr.normal * light_dir,0.0)*kd*dif_illum;
-			sr.color = sr.color*factor;
-			clamp_to_color(sr.color);
-
-		}
-	}
-
-	return (sr);//This is not very efficient...copying all the staff. Definitely replace it with a pointer later
 }
 
 
@@ -163,14 +73,21 @@ World::hit_bare_bones_objects(const Ray& ray) {
 
 void
 World::delete_objects(void) {
-	int num_objects = objects.size();
+	// int num_objects = objects.size();
 
-	for (int j = 0; j < num_objects; j++) {
-		delete objects[j];
-		objects[j] = NULL;
-	}
+	// for (int j = 0; j < num_objects; j++) {
+	// 	delete objects[j];
+	// 	objects[j] = NULL;
+	// }
 
-	objects.erase (objects.begin(), objects.end());
+	// int num_lights = lights.size();
+	// for (int i = 0; i < num_lights; ++i){
+	// 	delete lights[i];
+	// 	lights[i] = NULL;
+	// }
+
+	// objects.erase (objects.begin(), objects.end());
+	// lights.erase (lights.begin(), lights.end());	
 }
 
 // ------------------------------------------------------------------ add_object
@@ -179,45 +96,140 @@ World::add_object(GeometricObject* object_ptr) {
 	objects.push_back(object_ptr);
 }
 
+void 
+World::add_light(Light * light_ptr){
+	lights.push_back(light_ptr);
+}
 
-// ------------------------------------------------------------------ build function!
+
+
+//will make this better clamp later
 void
-World::build(void) {
-	vp.set_hres(200);
-	vp.set_vres(200);
-	vp.set_pixel_size(1);
-
-	tracer_ptr = new MultipleObjects(this);
-
-	background_color = RGBAPixel(black);
-
-	// use access functions to set centre and radius
-
-	Sphere* sphere_ptr = new Sphere;
-	sphere_ptr->set_center(0, 0, 0);
-	sphere_ptr->set_radius(40);
-	sphere_ptr->set_color(255, 0, 0);  // red
-	add_object(sphere_ptr);
-
-	// // // use constructor to set centre and radius
-
-	sphere_ptr = new Sphere(Point3D(0, 40, -50), 30);
-	sphere_ptr->set_color(255, 255, 0);	// yellow
-	add_object(sphere_ptr);
-
-	//Add a Triangle
-	Triangle* tri_ptr = new Triangle(Point3D(10, 10, 70),Point3D(90, 0, 70),Point3D(0, 90, 70));	
-	tri_ptr->set_color(0,0,255);	//blue
-	add_object(tri_ptr);
-
-	Plane* plane_ptr = new Plane(Point3D(0), Normal(0, 0, 1));
-	plane_ptr->set_color(0, 76, 0);	// dark green
-	add_object(plane_ptr);
+World::clamp_to_color(RGBAPixel& raw_color) const {
+	if (raw_color.red > 255.0)		raw_color.red = 255.0;
+	if (raw_color.green > 255.0)		raw_color.green = 255.0;
+	if (raw_color.blue > 255.0)		raw_color.blue = 255.0;
+	
 }
 
 
 
 
+// ----------------------------------------------------------------------------- hit_bare_bones_objects
+//Note all the phong shading occurs in here
+ShadeRec
+World::hit_objects(Ray& ray) {
+	ShadeRec	sr(*this);
 
-// pixel_color = tracer_ptr->trace_ray(ray);
+	IntersectionInfo I;
+    bool hit = bvh->getIntersection(ray, &I, false,&sr);
+
+	if (hit)
+	{
+		sr.t = I.t;
+		sr.hit_point = ray.o+sr.t*ray.d;
+		sr.material_ptr = I.object->get_material();
+		sr.hit_an_object = true;
+	}
+
+	return (sr);//This is not very efficient...copying all the staff. Definitely replace it with a pointer later
+}
+
+
+
+// ------------------------------------------------------------------ build function!
+void
+World::build(void) {
+	//set viewplane
+	vp.set_hres(400);
+	vp.set_vres(400);
+	vp.set_pixel_size(0.5);
+
+	//set tracer
+	tracer_ptr = new Whitted(this);
+
+	//set Pinhole
+	pinhole_ptr = new Pinhole();
+	pinhole_ptr->set_eye(0, 0, 500);
+	pinhole_ptr->set_lookat(0,0,0);   
+	pinhole_ptr->set_view_distance(850);	
+	pinhole_ptr->compute_uvw(); 	
+
+	//set ambient 
+	ambient_ptr = new Ambient();
+	//ambient_ptr->scale_radiance(1.0);
+
+	//set point light
+	PointLight * pl_ptr = new PointLight(Vector3D(100,50,150),RGBAPixel(255,255,255),3.0);
+	add_light(pl_ptr);
+
+
+
+	//set bg color
+	background_color = RGBAPixel(black);
+
+	//set material
+
+	// Matte* matte_ptr1 = new Matte;
+	// matte_ptr1->set_ka(0.25);	
+	// matte_ptr1->set_kd(0.65);
+	// matte_ptr1->set_ks(0.3);
+	// matte_ptr1->set_exp(15);		
+	// matte_ptr1->set_cd(RGBAPixel(255,0.0,0.0));
+	
+	//testing the bvh 	
+	int number = 100;
+	for (int i = 0; i < number; ++i)
+	{
+		Sphere* sphere_ptr = new Sphere(Point3D(rand()%100-50, rand()%100-50, rand()%100-50), 5);
+		Matte* matte_ptr1 = new Matte;
+		matte_ptr1->set_cd(RGBAPixel(rand()%200+55,rand()%200+55,rand()%200+55));
+		matte_ptr1->set_ka(0.25);	
+	matte_ptr1->set_kd(0.65);
+	matte_ptr1->set_ks(0.3);
+	matte_ptr1->set_exp(15);
+		sphere_ptr->set_material(matte_ptr1);	// yellow
+		add_object(sphere_ptr);
+	}
+
+	//read triangles
+	
+	// vector<Point3D> All_Points;
+	// FILE * file = fopen("cow.obj", "r");
+	// if( file == NULL ){
+	//      printf("Impossible to open the file !\n");
+	//      return;
+	//  } 
+	// while( true ){
+
+	// 	char lineHeader[128];
+	// 	// read the first word of the line
+	// 	int res = fscanf(file, "%s", lineHeader);
+	// 	if (res == EOF)
+	// 		break;
+	// 	if ( strcmp( lineHeader, "v" ) == 0 ){
+	//      	Point3D point;
+	//      	fscanf(file, "%lf %lf %lf\n", &point.x, &point.y, &point.z );
+	//      	All_Points.push_back(point*70);
+	//     }
+	// 	if ( strcmp( lineHeader, "f" ) == 0 ){
+	//      	int ver1,ver2,ver3;
+	//      	fscanf(file, "%d %d %d\n", &ver1,&ver2, &ver3);
+	// 		Triangle* tri_ptr = new Triangle(All_Points.at(ver1-1),All_Points.at(ver2-1),All_Points.at(ver3-1));	
+	// 		tri_ptr->set_material(matte_ptr1);	//blue
+	// 		add_object(tri_ptr);	     	 
+	//     }
+
+	// }	
+	// cout << "Read file completed!!" << endl;
+
+	// Sphere* sphere_ptr = new Sphere(Point3D(-30,-30,-30), 30);
+	// sphere_ptr->set_material(matte_ptr1);	// yellow
+	// add_object(sphere_ptr);
+	
+	//BVH added here
+	bvh = new BVH(&objects);
+
+}
+
 

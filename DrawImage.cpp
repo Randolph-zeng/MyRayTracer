@@ -18,15 +18,14 @@ int main()
 	std::cout << "World building completed" << std::endl;
 
 	std::cout << "Setting View Parameters" << std::endl;
-	//world.set_perspective(true);
 	world.set_sample_number(5.0);
-	world.set_diffuse(Vector3D(0,0,1),0.75,1.0);
+	world.set_diffuse(0.75,1.0);
 	std::cout << "Parameters setting completed" << std::endl;	
 
 	std::cout << "Generating image....." << std::endl;
-	world.render_scene();
-	world.Image->writeToFile("solution.png");
-	delete world.Image;
+	world.pinhole_ptr->render_scene(world);
+	world.pinhole_ptr->Image->writeToFile("solution2.png");
+	delete world.pinhole_ptr->Image;
 	std::cout << "Image drawing completed" << std::endl;
 
 	std::cout << "Cleaning up" << std::endl;

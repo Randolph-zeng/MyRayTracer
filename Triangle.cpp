@@ -5,11 +5,11 @@
  *      Author: Ruiss
  */
 #include "Triangle.h"
-
+#include <math.h>
 //#include <stdio.h>
 
 const double Triangle::kEpsilon = 0.001;
-
+using namespace std;
 
 
  Triangle::Triangle():vertex1(),vertex2(),vertex3(),n(){
@@ -59,7 +59,7 @@ Triangle::clone()const{
 
 
  //#419 begin# type == 3 # src = http://www.scratchapixel.com/code.php?id=9&origin=/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle
- bool Triangle::hit(const Ray& ray, double& tmin, ShadeRec& sr) const{
+ bool Triangle::hit(const Ray& ray, float& tmin, ShadeRec& sr, IntersectionInfo& I) const{
 
 	//replace a in the formula with vertex1
 	//float t = (a-ray.o)*n/(ray.d*n);
@@ -93,12 +93,73 @@ Triangle::clone()const{
 		tmin = t;
 		sr.normal 	 = n;
 		sr.local_hit_point = ray.o + t * ray.d;
+	I.t = t;
+	I.object = this;	
 		return true;
  	}
 
  	return false;
  }
 
+
+bool Triangle::shadow_hit(const Ray& ray, float& tmin, IntersectionInfo& I) const{
+	//replace a in the formula with vertex1
+	//float t = (a-ray.o)*n/(ray.d*n);
+ 	double t = (vertex1-ray.o)*n/(ray.d*n);
+ 	// inside or outside test
+ 	if (t >kEpsilon)
+ 	{
+ 		
+ 		Vector3D P = ray.o + ray.d * t;
+		Vector3D C; // vector perpendicular to triangle's plane 
+
+     // edge 0
+		Vector3D V1V2 = vertex2 - vertex1;
+
+		Vector3D V1P = P - vertex1;
+		C = V1V2 ^ V1P; 
+        if ((n *C) < 0) return false; // P is on the right side 
+ 
+     // edge 1
+        Vector3D V2V3 = vertex3 - vertex2;
+		Vector3D V2P = P - vertex2;
+		C = V2V3 ^ V2P; 
+		if ((n*C) < 0)  return false; // P is on the right side 
+ 
+     // edge 2
+		Vector3D V3V1 = vertex1 - vertex3;
+		Vector3D V3P = P - vertex3;
+		C = V3V1 ^ V3P;
+		if((n*C)< 0)	return false;
+
+		tmin = t;
+			I.t = t;
+	I.object = this;
+		return true;
+ 	}
+
+ 	return false;
+}
+
  //#419 end#
 
 
+BBox 
+Triangle::getBBox() const {
+
+	float minx,miny,minz,maxx,maxy,maxz;
+	minx = min(vertex1.x,min(vertex2.x,vertex3.x));	
+	miny = min(vertex1.y,min(vertex2.y,vertex3.y));	
+	minz = min(vertex1.z,min(vertex2.z,vertex3.z));
+
+	maxx = max(vertex1.x,max(vertex2.x,vertex3.x));
+	maxy = max(vertex1.y,max(vertex2.y,vertex3.y));
+	maxz = max(vertex1.z,max(vertex2.z,vertex3.z));			
+
+	return BBox(Vector3D(minx,miny,minz),Vector3D(maxx,maxy,maxz));
+}
+
+Vector3D 
+Triangle::getCentroid() const {
+	return (vertex1+vertex2+vertex3)/3;
+}

@@ -11,34 +11,44 @@
 //# 419begin # type = 3 # src = raytracegroundup.com
 #include <vector>
 #include "Ray.h"
-#include "MultipleObjects.h"
+#include "Whitted.h"
 #include "Tracer.h"
 #include "Sphere.h"
 #include "Triangle.h"
 #include "Plane.h"
 #include "ViewPlane.h"
 #include "GeometricObject.h"
+#include "Light.h"
+#include "Ambient.h"
+#include "PointLight.h" 
+#include "Camera.h" 
+#include "Pinhole.h"
+
 //# 419end
 
 //# 419begin # type = 1 # src = http://zarb.org/~gc/html/libpng.html && Chase Geigle from CS225
 #include "rgbapixel.h" // now color ranges from 0 to 255
 #include "png.h"
-
-
+//#419 begin# type = 1 # SRC = https://github.com/brandonpelfrey/Fast-BVH
+#include "BVH.h"
+#include "BBox.h" 
+//#419 end
 
 using namespace std;//we are using vector class
-
-
+class Pinhole;
+class Material;
+class Matte;
 class World {
 public:
 	ViewPlane vp;
 	RGBAPixel background_color;
 	Tracer* tracer_ptr;
-	Sphere sphere;
 	vector<GeometricObject*> objects;
-
-	PNG * Image;
-
+	vector<Light*> lights;				
+	Light * ambient_ptr;				//ambient pointer, we only need one
+	int sample_number;
+	Pinhole * pinhole_ptr;
+	BVH* bvh;
 
 	World();
 	virtual ~World();
@@ -46,14 +56,10 @@ public:
 	void
 	add_object(GeometricObject* object_ptr);
 
+	void add_light(Light * light_ptr);
+
 	void
 	build(void);
-
-	void
-	render_scene(void);
-
-	// RGBAPixel
-	// max_to_one(const RGBAPixel& c) const;
 
 	void
 	clamp_to_color( RGBAPixel& c) const;
@@ -62,38 +68,23 @@ public:
 	display_pixel(const int row, const int column, const RGBAPixel& pixel_color) const;
 
 	ShadeRec
-	hit_bare_bones_objects(const Ray& ray);
+	hit_objects(Ray& ray);
 
 	void
 	delete_objects(void);
 
-	void set_perspective(const bool isPerspective);
+	void set_sample_number(const int number);
 
-	void set_sample_number(const double number);
-
-	void set_diffuse(Vector3D ld, float kd_, float dif_);
-
-
-	//void set_camera(const double x,const double y,const double z);
+	void set_diffuse(float kd_, float dif_);
 
 
 private:
-	bool perspective;
-	double x;
-	double y;
-	double z;
-	double sample_number;// note that I am using the simplest multi-jittered method here,
-						//did not enforce n-rook property and also did not shuffle
-	Vector3D light_dir;
 	float 	 kd; 		//reflectivity
-	float	 dif_illum;	//diffuse light luminosity
+	float	 dif_illum;	//diffuse Light luminosity
+
 
 
 };
-
-
-
-// inline void World::set_camera(const double x,const double y,const double z){}
 
 
 #endif /* WORLD_H_ */

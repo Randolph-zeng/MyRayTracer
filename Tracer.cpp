@@ -21,7 +21,8 @@ Tracer::~Tracer() {
 		world_ptr = NULL;// world object should be released in world class;
 }
 
-RGBAPixel Tracer::trace_ray(const Ray& ray)const{
+RGBAPixel Tracer::trace_ray(Ray& ray)const{
+	printf("tracer reached\n" );//shouldn't reached at all
 	return (black);// defined in constant.h, essentially RGBAPixel(0,0,0)
 }
 

@@ -4,9 +4,8 @@
 // This file contains the declaration of the class Sphere
 
 #include "GeometricObject.h"
-
+#include "BBox.h"
 //-------------------------------------------------------------------------------- class Sphere
-
 class Sphere: public GeometricObject {	
 								  	
 	public:
@@ -36,8 +35,16 @@ class Sphere: public GeometricObject {
 		set_radius(const double r);
 						
 		virtual bool 												 
-		hit(const Ray& ray, double& t, ShadeRec& s) const;	
+		hit(const Ray& ray, float& t, ShadeRec& s,IntersectionInfo& I) const;
+	//BVH AND BBOX
+		virtual BBox 
+		getBBox(void)const;
 
+	
+		virtual Vector3D 
+		getCentroid() const;		
+
+		bool shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const;
 		
 	private:
 	

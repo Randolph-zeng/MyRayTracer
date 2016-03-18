@@ -13,9 +13,9 @@ const double 	invTWO_PI 	= 0.1591549430918953358;
 const double 	kEpsilon 	= 0.0001; 
 const double	kHugeValue	= 1.0E10;
 
-const RGBAPixel	black(0,0,0);
-const RGBAPixel	white(255,255,255);
-const RGBAPixel	red(255, 0, 0);
+const RGBAPixel	black(((float)0.),((float)0.),((float)0.));
+const RGBAPixel	white((float)255.,(float)255.,(float)255.);
+const RGBAPixel	red((float)255.,(float) 0., (float)0.);
 
 const float invRAND_MAX = 1.0 / (float)RAND_MAX;
 

@@ -3,6 +3,7 @@
 
 #include "GeometricObject.h"
 #include "Vector3D.h"
+#include "BBox.h"
 
 class Triangle:public GeometricObject{
 
@@ -24,7 +25,16 @@ class Triangle:public GeometricObject{
 
 		Triangle& operator=(const Triangle& rhs); // copy constructor
 
-		virtual bool hit(const Ray& ray, double& tmin, ShadeRec& sr) const;
+		virtual bool hit(const Ray& ray, float& tmin, ShadeRec& sr, IntersectionInfo& I) const;
+
+		bool shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const;
+
+		virtual BBox 
+		getBBox(void)const;
+
+	
+		virtual Vector3D 
+		getCentroid() const;	
 
 
 	private:

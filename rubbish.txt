@@ -1,0 +1,10 @@
+Building World.....
+Read file completed!!
+[Statistic] Built BVH (3923 nodes, with 1962 leafs) in 7 ms
+World building completed
+Setting View Parameters
+Parameters setting completed
+Generating image.....
+Image drawing completed
+Cleaning up
+Cleaning completed

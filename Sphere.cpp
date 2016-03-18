@@ -4,6 +4,7 @@
 #include "math.h"
 
 const double Sphere::kEpsilon = 0.001;
+
 					
 // ---------------------------------------------------------------- default constructor
 
@@ -63,10 +64,22 @@ Sphere::operator= (const Sphere& rhs)
 Sphere::~Sphere(void) {}
 
 
+// ---------------------------------------------------------------- bbox
+
+BBox 
+Sphere::getBBox(void) const {
+	return BBox(center-Vector3D(radius,radius,radius), center+Vector3D(radius,radius,radius));
+	
+}
+
+Vector3D 
+Sphere::getCentroid(void) const {
+    return center;
+}
 //---------------------------------------------------------------- hit
 
 bool
-Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
+Sphere::hit(const Ray& ray, float& tmin, ShadeRec& sr,IntersectionInfo& I) const {
 	double 		t;
 	Vector3D	temp 	= ray.o - center;
 	double 		a 		= ray.d * ray.d;
@@ -85,6 +98,8 @@ Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 			tmin = t;
 			sr.normal 	 = (temp + t * ray.d) / radius;
 			sr.local_hit_point = ray.o + t * ray.d;
+		I.t = t;
+		I.object = this;
 			return (true);
 		} 
 	
@@ -94,6 +109,42 @@ Sphere::hit(const Ray& ray, double& tmin, ShadeRec& sr) const {
 			tmin = t;
 			sr.normal   = (temp + t * ray.d) / radius;
 			sr.local_hit_point = ray.o + t * ray.d;
+		I.t = t;
+		I.object = this;	
+			return (true);
+		} 
+	}
+	return (false);
+}
+
+bool Sphere::shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const{
+	double 		t;
+	Vector3D	temp 	= ray.o - center;
+	double 		a 		= ray.d * ray.d;
+	double 		b 		= 2.0 * temp * ray.d;
+	double 		c 		= temp * temp - radius * radius;
+	double 		disc	= b * b - 4.0 * a * c;
+	
+	if (disc < 0.0)
+		return(false);
+	else {	
+		double e = sqrt(disc);
+		double denom = 2.0 * a;
+		t = (-b - e) / denom;    // smaller root
+	
+		if (t > kEpsilon) {
+			tmin = t;
+			I.t = t;
+			I.object = this;
+			return (true);
+		} 
+	
+		t = (-b + e) / denom;    // larger root
+	
+		if (t > kEpsilon) {
+			tmin = t;
+			I.t = t;
+			I.object = this;
 			return (true);
 		} 
 	}

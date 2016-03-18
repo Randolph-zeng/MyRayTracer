@@ -1,72 +1,128 @@
-/*
- * GeometricObject.h
- *
- *  Created on: Jan 23, 2016
- *      Author: Ruiss
- */
+#ifndef __GEOMETRIC_OBJECT__
+#define __GEOMETRIC_OBJECT__
 
-#ifndef GEOMETRICOBJECTS_GEOMETRICOBJECT_H_
-#define GEOMETRICOBJECTS_GEOMETRICOBJECT_H_
+// 	Copyright (C) Kevin Suffern 2000-2007.
+//	This C++ code is for non-commercial purposes only.
+//	This C++ code is licensed under the GNU General Public License Version 2.
+//	See the file COPYING.txt for the full license.
 
+
+#include <math.h>  // a lot of hit functions use use maths functions
+
+#include "Constants.h"
+#include "BBox.h"
+#include "BVH.h"
 #include "rgbapixel.h"
 #include "Point3D.h"
+#include "Vector3D.h"
 #include "Normal.h"
 #include "Ray.h"
 #include "ShadeRec.h"
-#include "Constants.h"
+#include "IntersectionInfo.h"
 
-class GeometricObject {
-public:
-	GeometricObject();
+class Material;	
 
-	GeometricObject(const GeometricObject & object);
 
-	virtual GeometricObject* clone(void) const = 0;			// virtual copy constructor
+//----------------------------------------------------------------------------------------------------- class GeometricObject
 
-	virtual ~GeometricObject();
+class GeometricObject {	
+	public:	
 
-	//It is very important to remember to calculate the normal in the hit point 
-	//and record it in the ShadeRec object. It saves time and can be
-	//used to do phong shading!
-	virtual bool hit(const Ray& ray, double & t, ShadeRec& s) const = 0;
+		GeometricObject(void);									
+		
+		GeometricObject(const GeometricObject& object);			
+	
+		virtual GeometricObject*								
+		clone(void) const = 0;
 
-	void
-	set_color(const RGBAPixel& c);
+		virtual 												
+		~GeometricObject(void);	
+			
+		virtual bool 												 
+		hit(const Ray& ray, float& t, ShadeRec& s,IntersectionInfo& I) const = 0;	
 
-	void
-	set_color(const uint8_t r, const uint8_t g, const uint8_t b);
+		virtual bool shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const = 0;
+		
+		virtual void 							// This needs to be virtual so that it can be overridden in Compound
+		set_material(Material* mPtr); 			// It therefore shouldn't be inlined
+		
+		Material*					
+		get_material(void) const;
 
-	RGBAPixel
-	get_color(void);
+				   
+		// The following three functions are only required for Chapter 3
+		
+		void
+		set_color(const RGBAPixel& c);
+				
+		void
+		set_color(const float r, const float g, const float b);
+		
+		RGBAPixel
+		get_color(void);
+		
+		// virtual void 
+		// set_bounding_box(void);
+		
+		virtual BBox 
+		getBBox(void)const = 0;
 
-protected:
-	RGBAPixel color;	//This stupid shit exists because all objects are unicolored for now.
-	GeometricObject & operator = (const GeometricObject& rhs); //assignment operator
+		virtual Vector3D 
+		getCentroid() const = 0;
+
+		virtual void 										// required for compound objects
+		add_object(GeometricObject* object_ptr);
+				
+		
+		// The following two functions are only required for objects that are light sources, eg disks, rectangles, and spheres
+		 
+		virtual Point3D 		
+		sample(void);
+		
+		virtual float
+		pdf(ShadeRec& sr); 
+				
+		
+		// The following two functions allow us to simplify the code for smooth shaded triangle meshes
+		
+		virtual Normal
+		get_normal(void) const; 
+		
+		virtual Normal
+		get_normal(const Point3D& p); 
+
+	
+	protected:
+	
+		mutable Material*   material_ptr;   	// mutable allows the const functions Compound::hit, Instance::hit, and RegularGrid::hit to assign to material_ptr
+		RGBAPixel   			color;				// only used for Bare Bones ray tracing
+	
+		GeometricObject&						
+		operator= (const GeometricObject& rhs);
 };
 
 
-// --------------------------------------------------------------------  set_colour
+// --------------------------------------------------------------------  set_color
 
 inline void
 GeometricObject::set_color(const RGBAPixel& c) {
 	color = c;
 }
 
-// --------------------------------------------------------------------  set_colour
+// --------------------------------------------------------------------  set_color
 
-inline void
-GeometricObject::set_color(const uint8_t r, const uint8_t g, const uint8_t b) {
+inline void 
+GeometricObject::set_color(const float r, const float g, const float b) {
 	color.red = r;
 	color.blue = b;
 	color.green = g;
 }
 
-// --------------------------------------------------------------------  get_colour
+// --------------------------------------------------------------------  get_color
 
-inline RGBAPixel
+inline RGBAPixel 
 GeometricObject::get_color(void) {
 	return (color);
 }
 
-
-#endif /* GEOMETRICOBJECTS_GEOMETRICOBJECT_H_ */
+#endif

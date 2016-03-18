@@ -6,7 +6,7 @@
  */
 
 #include "Ray.h"
-
+#include <stdio.h>
 Ray::Ray(void):o(0.0),d(0.0,0.0,1.0) {
 	// TODO Auto-generated constructor stub
 }
@@ -34,3 +34,9 @@ Ray::~Ray(void) {
 	// TODO Auto-generated destructor stub
 }
 
+void Ray::set_inverse(){
+
+	inverse_d.x = 1/d.x;
+	inverse_d.y = 1/d.y;
+	inverse_d.z = 1/d.z; 
+}
