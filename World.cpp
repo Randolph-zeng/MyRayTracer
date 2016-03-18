@@ -226,7 +226,7 @@ World::build(void) {
 	// Sphere* sphere_ptr = new Sphere(Point3D(-30,-30,-30), 30);
 	// sphere_ptr->set_material(matte_ptr1);	// yellow
 	// add_object(sphere_ptr);
-	
+	 
 	//BVH added here
 	bvh = new BVH(&objects);
 
