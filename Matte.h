@@ -52,6 +52,13 @@ class Matte: public Material {
 				
 		virtual RGBAPixel										
 		shade(ShadeRec& sr);
+
+		virtual RGBAPixel 
+		get_Le(ShadeRec& sr);
+
+
+		virtual RGBAPixel										
+		area_light_shade(ShadeRec& sr);
 		
 	private:
 		

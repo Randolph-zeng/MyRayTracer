@@ -126,13 +126,13 @@ Pinhole::render_scene(const World& world) {
 						ray.d.normalize();
 						//multiply by the inverse eliminates the shadow don't know why
 						//ray.set_inverse();
-						pixel_color = pixel_color + tracer_ptr->trace_ray(ray);						//
+						pixel_color = pixel_color + tracer_ptr->trace_ray(ray);	
 					}
 							
 				pixel_color = pixel_color/(sample_number*sample_number);
 				//printf("before  red:%f green:%f blue:%f\n",pixel_color.red,pixel_color.green,pixel_color.blue );
 				pixel_color = max_to_one(pixel_color);
-				// /printf("After  red:%f green:%f blue:%f\n",pixel_color.red,pixel_color.green,pixel_color.blue );
+				//printf("After  red:%f green:%f blue:%f\n",pixel_color.red,pixel_color.green,pixel_color.blue );
 				*( (*Image)(c,vres-r-1) ) = pixel_color;
 			}
 

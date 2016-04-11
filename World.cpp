@@ -18,7 +18,12 @@
 #include "Maths.h"
 #include "PointLight.h"
 #include "Material.h"
-#include "Matte.h"  
+#include "Matte.h"
+#include "Emissive.h" 
+#include "AreaLighting.h"
+#include "AreaLight.h"
+#include "Sampler.h" 
+#include "MultiJittered.h"
 //#419 end
 #include <fstream>
 #include <sstream>
@@ -34,7 +39,8 @@ void World::set_sample_number(const int number){
 World::World(void)
 	:  	background_color(black),
 		tracer_ptr(NULL),
-		ambient_ptr(new Ambient)	
+		ambient_ptr(new Ambient),
+		plane_ptr(NULL)	
 {}
 
 
@@ -115,8 +121,7 @@ World::clamp_to_color(RGBAPixel& raw_color) const {
 
 
 
-// ----------------------------------------------------------------------------- hit_bare_bones_objects
-//Note all the phong shading occurs in here
+// ----------------------------------------------------------------------------- hit_objects
 ShadeRec
 World::hit_objects(Ray& ray) {
 	ShadeRec	sr(*this);
@@ -124,7 +129,23 @@ World::hit_objects(Ray& ray) {
 	IntersectionInfo I;
     bool hit = bvh->getIntersection(ray, &I, false,&sr);
 
-	if (hit)
+	//add plane detection
+	bool hit_plane = false;
+    if (plane_ptr)
+    {
+    	float tmin = 0;
+    	if (plane_ptr->hit(ray, tmin,sr) && tmin < I.t){
+    		hit_plane = true;
+    		sr.t = tmin;
+    		sr.hit_point = ray.o+sr.t*ray.d;
+    		sr.material_ptr = plane_ptr->get_material();
+    		sr.hit_an_object = true;
+    	}
+	 		 
+    }
+
+
+	if (hit && !hit_plane)
 	{
 		sr.t = I.t;
 		sr.hit_point = ray.o+sr.t*ray.d;
@@ -132,10 +153,25 @@ World::hit_objects(Ray& ray) {
 		sr.hit_an_object = true;
 	}
 
-	return (sr);//This is not very efficient...copying all the staff. Definitely replace it with a pointer later
+
+	return (sr);
 }
 
+	// ShadeRec	sr(*this);
 
+	// IntersectionInfo I;
+ 	// bool hit = bvh->getIntersection(ray, &I, false,&sr);
+
+	// if (hit)
+	// {
+	// 	sr.t = I.t;
+	// 	sr.hit_point = ray.o+sr.t*ray.d;
+	// 	sr.material_ptr = I.object->get_material();
+	// 	sr.hit_an_object = true;
+	// }
+
+
+	// return (sr);
 
 // ------------------------------------------------------------------ build function!
 void
@@ -146,7 +182,8 @@ World::build(void) {
 	vp.set_pixel_size(0.5);
 
 	//set tracer
-	tracer_ptr = new Whitted(this);
+	//tracer_ptr = new Whitted(this);
+	tracer_ptr = new AreaLighting(this);
 
 	//set Pinhole
 	pinhole_ptr = new Pinhole();
@@ -160,9 +197,28 @@ World::build(void) {
 	//ambient_ptr->scale_radiance(1.0);
 
 	//set point light
-	PointLight * pl_ptr = new PointLight(Vector3D(100,50,150),RGBAPixel(255,255,255),3.0);
-	add_light(pl_ptr);
+	// PointLight * pl_ptr = new PointLight(Vector3D(100,50,150),RGBAPixel(255,255,255),3.0);
+	// add_light(pl_ptr);
 
+	//set area light
+	Emissive * emissive_ptr = new Emissive();
+	emissive_ptr->scale_radiance(256);
+	emissive_ptr->set_ce(255,255,255);
+
+	//set sampler_ptr
+	Sampler * sampler_ptr = new MultiJittered(100);
+	sampler_ptr->map_samples_to_sphere();
+
+	//set emissive sphere_light
+	Sphere * sphere_light = new Sphere(Point3D(50,50,20),15);
+	sphere_light->set_material(emissive_ptr); 
+	sphere_light->set_sampler(sampler_ptr);
+	add_object(sphere_light);
+	
+	//set area light
+	AreaLight* area_light_ptr = new AreaLight();
+	area_light_ptr->set_object(sphere_light);
+	add_light(area_light_ptr);
 
 
 	//set bg color
@@ -178,19 +234,51 @@ World::build(void) {
 	// matte_ptr1->set_cd(RGBAPixel(255,0.0,0.0));
 	
 	//testing the bvh 	
-	int number = 100;
+	int number = 1;
 	for (int i = 0; i < number; ++i)
 	{
-		Sphere* sphere_ptr = new Sphere(Point3D(rand()%100-50, rand()%100-50, rand()%100-50), 5);
+		Sphere* sphere_ptr = new Sphere(Point3D(0,0,-25), 10);
 		Matte* matte_ptr1 = new Matte;
 		matte_ptr1->set_cd(RGBAPixel(rand()%200+55,rand()%200+55,rand()%200+55));
 		matte_ptr1->set_ka(0.25);	
-	matte_ptr1->set_kd(0.65);
-	matte_ptr1->set_ks(0.3);
-	matte_ptr1->set_exp(15);
+		matte_ptr1->set_kd(0.65);
+		matte_ptr1->set_ks(0.3);
+		matte_ptr1->set_exp(15);
 		sphere_ptr->set_material(matte_ptr1);	// yellow
 		add_object(sphere_ptr);
+
+		 sphere_ptr = new Sphere(Point3D(-15,-15,-25), 15);
+		 matte_ptr1 = new Matte;
+		matte_ptr1->set_cd(RGBAPixel(rand()%200+55,rand()%200+55,rand()%200+55));
+		matte_ptr1->set_ka(0.25);	
+		matte_ptr1->set_kd(0.65);
+		matte_ptr1->set_ks(0.3);
+		matte_ptr1->set_exp(15);
+		sphere_ptr->set_material(matte_ptr1);	// yellow
+		add_object(sphere_ptr);
+
 	}
+
+	// Sphere* sphere_ptr = new Sphere(Point3D(-30,-30,-30), 30);
+	// sphere_ptr->set_material(matte_ptr1);	// yellow
+	// add_object(sphere_ptr);
+	 
+	//BVH added here
+	bvh = new BVH(&objects);
+
+	//add plane
+	plane_ptr = new Plane(Point3D(0,0,-30), Normal(0,0,1));
+		Matte* matte_ptr1 = new Matte;
+		matte_ptr1->set_cd(RGBAPixel(255,0,0));
+		matte_ptr1->set_ka(0.25);	
+		matte_ptr1->set_kd(0.65);
+		matte_ptr1->set_ks(0.3);
+		matte_ptr1->set_exp(15);
+	plane_ptr->set_material(matte_ptr1);
+
+}
+
+
 
 	//read triangles
 	
@@ -222,14 +310,3 @@ World::build(void) {
 
 	// }	
 	// cout << "Read file completed!!" << endl;
-
-	// Sphere* sphere_ptr = new Sphere(Point3D(-30,-30,-30), 30);
-	// sphere_ptr->set_material(matte_ptr1);	// yellow
-	// add_object(sphere_ptr);
-	 
-	//BVH added here
-	bvh = new BVH(&objects);
-
-}
-
-

@@ -18,7 +18,7 @@ int main()
 	std::cout << "World building completed" << std::endl;
 
 	std::cout << "Setting View Parameters" << std::endl;
-	world.set_sample_number(5.0);
+	world.set_sample_number(16.0);
 	world.set_diffuse(0.75,1.0);
 	std::cout << "Parameters setting completed" << std::endl;	
 

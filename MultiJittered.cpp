@@ -4,7 +4,8 @@
 //	See the file COPYING.txt for the full license.
 
 #include "MultiJittered.h"
-#include <stdlib.h> 
+#include <stdio.h>
+
 // ---------------------------------------------------------------- default constructor
 	
 MultiJittered::MultiJittered(void)							
@@ -108,8 +109,8 @@ MultiJittered::generate_samples(void) {
 	for (int p = 0; p < num_sets; p++) 
 		for (int i = 0; i < n; i++)		
 			for (int j = 0; j < n; j++) {
-				samples[i * n + j + p * num_samples].x = (i * n + j) * subcell_width + rand()*subcell_width;
-				samples[i * n + j + p * num_samples].y = (j * n + i) * subcell_width + rand()*subcell_width;
+				samples[i * n + j + p * num_samples].x = (i * n + j) * subcell_width + rand_float(0, subcell_width);
+				samples[i * n + j + p * num_samples].y = (j * n + i) * subcell_width + rand_float(0, subcell_width);
 			}
 	
 	// shuffle x coordinates
@@ -117,7 +118,7 @@ MultiJittered::generate_samples(void) {
 	for (int p = 0; p < num_sets; p++) 
 		for (int i = 0; i < n; i++)		
 			for (int j = 0; j < n; j++) {
-				int k = rand()*(n-1-j)+j;
+				int k = rand_int(j, n - 1);
 				float t = samples[i * n + j + p * num_samples].x;
 				samples[i * n + j + p * num_samples].x = samples[i * n + k + p * num_samples].x;
 				samples[i * n + k + p * num_samples].x = t;
@@ -128,7 +129,7 @@ MultiJittered::generate_samples(void) {
 	for (int p = 0; p < num_sets; p++)
 		for (int i = 0; i < n; i++)		
 			for (int j = 0; j < n; j++) {
-				int k = rand()*(n-1-j)+j;
+				int k = rand_int(j, n - 1);
 				float t = samples[j * n + i + p * num_samples].y;
 				samples[j * n + i + p * num_samples].y = samples[k * n + i + p * num_samples].y;
 				samples[k * n + i + p * num_samples].y = t;

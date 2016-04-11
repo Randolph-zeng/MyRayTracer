@@ -6,7 +6,7 @@
  */
 
 #include "MultipleObjects.h"
-#include "World.h" // include a header file inside a cpp file won't result in circular dependence!!!!!!!!!
+#include "World.h" // include a header file inside a cpp file won't result in circular dependence
 
 MultipleObjects::MultipleObjects() {
 	Tracer();

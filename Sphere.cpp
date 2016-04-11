@@ -11,7 +11,8 @@ const double Sphere::kEpsilon = 0.001;
 Sphere::Sphere(void)	
 	: 	GeometricObject(),
 		center(0.0),
-		radius(1.0)
+		radius(1.0),
+		inv_area(1/(4*PI))
 {}
 
 
@@ -20,7 +21,8 @@ Sphere::Sphere(void)
 Sphere::Sphere(Point3D c, double r)
 	: 	GeometricObject(),
 		center(c),
-		radius(r)
+		radius(r),
+		inv_area(1/(4*PI*r*r))
 {}
 
 
@@ -37,7 +39,8 @@ Sphere::clone(void) const {
 Sphere::Sphere (const Sphere& sphere)
 	: 	GeometricObject(sphere),
 		center(sphere.center),
-		radius(sphere.radius)
+		radius(sphere.radius),
+		inv_area(sphere.inv_area)
 {}
 
 
@@ -54,6 +57,7 @@ Sphere::operator= (const Sphere& rhs)
 
 	center 	= rhs.center;
 	radius	= rhs.radius;
+	inv_area = rhs.inv_area;
 
 	return (*this);
 }
@@ -157,4 +161,23 @@ bool Sphere::shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const{
 
 
 
+void Sphere::set_sampler(Sampler* sampler){
+	sampler_ptr = sampler;
+}
 
+Point3D Sphere::sample(void){
+
+	Point3D sample_point = sampler_ptr->sample_sphere();
+	return (center + sample_point * radius); 
+
+}
+
+float Sphere::pdf(ShadeRec& sr){
+	return inv_area;
+}
+
+Normal Sphere::get_normal(const Point3D& p){
+	Normal n = Normal(p-center); 
+	n.normalize();
+	return n;
+}

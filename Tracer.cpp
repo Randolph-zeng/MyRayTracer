@@ -22,7 +22,7 @@ Tracer::~Tracer() {
 }
 
 RGBAPixel Tracer::trace_ray(Ray& ray)const{
-	printf("tracer reached\n" );//shouldn't reached at all
+	printf("base tracer reached\n" );//shouldn't reached at all
 	return (black);// defined in constant.h, essentially RGBAPixel(0,0,0)
 }
 

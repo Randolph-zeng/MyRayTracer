@@ -1,6 +1,5 @@
 Building World.....
-Read file completed!!
-[Statistic] Built BVH (3923 nodes, with 1962 leafs) in 7 ms
+[Statistic] Built BVH (1 nodes, with 1 leafs) in 0 ms
 World building completed
 Setting View Parameters
 Parameters setting completed

@@ -70,6 +70,12 @@ Plane::~Plane(void)
 
 // ----------------------------------------------------------------- hit
 bool Plane::hit(const Ray& ray, float& tmin, ShadeRec& sr,IntersectionInfo& I)const{
+	printf("plane reached wrong function\n");
+	return false;
+}
+
+
+bool Plane::hit(const Ray& ray, float& tmin, ShadeRec& sr){
 	float t = (a-ray.o)*n/(ray.d*n);
 
 	if(t> 0.001){
@@ -83,12 +89,14 @@ bool Plane::hit(const Ray& ray, float& tmin, ShadeRec& sr,IntersectionInfo& I)co
 }
 
 
+//this function should never be called since a plane doesn't create any shadow, in another words, you don't see through plane
 bool Plane::shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I)const {
+	
 	float t = (a-ray.o)*n/(ray.d*n);
 
 	if(t> 0.001){
 		tmin = t;
-I.t = t;
+		I.t = t;
 		I.object = this;		
 		return true;
 	}
@@ -99,13 +107,13 @@ I.t = t;
 
 BBox 
 Plane::getBBox(void)const{
-	
+	return BBox();
 }
 
 	
 Vector3D 
 Plane::getCentroid() const{
-
+	return Vector3D();
 }	
 
 

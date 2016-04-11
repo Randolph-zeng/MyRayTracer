@@ -28,6 +28,8 @@ public:
 	//note all three parameters are passed by reference
 	virtual bool hit(const Ray&ray, float& tmin, ShadeRec& sr,IntersectionInfo& I) const;
 
+	bool hit(const Ray& ray, float& tmin, ShadeRec& sr);
+
 	bool shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const;
 
 	virtual BBox 

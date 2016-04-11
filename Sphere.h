@@ -5,6 +5,7 @@
 
 #include "GeometricObject.h"
 #include "BBox.h"
+#include "Sampler.h"
 //-------------------------------------------------------------------------------- class Sphere
 class Sphere: public GeometricObject {	
 								  	
@@ -46,12 +47,26 @@ class Sphere: public GeometricObject {
 
 		bool shadow_hit(const Ray& ray, float& tmin,IntersectionInfo& I) const;
 		
+		//for area lighting!
+		void set_sampler(Sampler* sampler);
+
+		virtual Point3D sample(void);
+
+		virtual float pdf( ShadeRec& sr);
+
+		virtual Normal get_normal(const Point3D& p);
+
+
 	private:
 	
 		Point3D 	center;   			// center coordinates as a point  
 		double 		radius;				// the radius 
 		
 		static const double kEpsilon;   // for shadows and secondary rays
+
+		//For area light shading/////////////////////////////////
+		Sampler* 	sampler_ptr;
+		float 		inv_area;
 };
 
 

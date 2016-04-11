@@ -49,6 +49,7 @@ public:
 	int sample_number;
 	Pinhole * pinhole_ptr;
 	BVH* bvh;
+	Plane * plane_ptr;
 
 	World();
 	virtual ~World();

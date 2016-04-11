@@ -43,5 +43,14 @@ Light::L(ShadeRec& s) {
 }
 
 
-
+ float
+Light::G(const ShadeRec& sr) const{
+	return 0.0;
+}
+		
+float									
+Light::pdf( ShadeRec& sr) const{
+	printf("base light pdf\n");
+	return 0.0;
+}
 

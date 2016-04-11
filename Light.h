@@ -40,7 +40,15 @@ class Light {
 		in_shadow( Ray& ray, const ShadeRec& sr)const = 0;				
 																
 		virtual RGBAPixel														
-		L(ShadeRec& sr);								
+		L(ShadeRec& sr);	
+
+		virtual float
+		G(const ShadeRec& sr) const;
+		
+		virtual float									
+		pdf( ShadeRec& sr) const ;
+
+									
 };
 
 #endif

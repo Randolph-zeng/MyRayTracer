@@ -58,6 +58,15 @@ PointLight::L(ShadeRec& sr){
 //
 bool
 PointLight::in_shadow(Ray & ray,const ShadeRec& sr)const{
+
+	//This is an invalid version, didn't take the distance into account
+	float d = location.distance(ray.o);
+	IntersectionInfo I;
+    bool hit = sr.w.bvh->getIntersection(ray, &I, true, NULL);
+    return hit;
+
+}
+
 	// float t;
 	// int num_objects = sr.w.objects.size();
 	
@@ -71,10 +80,3 @@ PointLight::in_shadow(Ray & ray,const ShadeRec& sr)const{
 	// }
 
 	// return false;
-
-	float d = location.distance(ray.o);
-	IntersectionInfo I;
-    bool hit = sr.w.bvh->getIntersection(ray, &I, true, NULL);
-    return hit;
-
-}	

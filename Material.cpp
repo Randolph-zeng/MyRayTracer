@@ -42,5 +42,14 @@ Material::shade(ShadeRec& sr) {
 }
 
 
+RGBAPixel Material::get_Le(ShadeRec& sr){
+	
+	printf("base material get_Le reached\n" );
+	return (RGBAPixel(0,0,0));
+}
 
-
+RGBAPixel
+Material::area_light_shade(ShadeRec& sr){
+	printf("base material area_light_shade reached\n" );
+	return (RGBAPixel(0,0,0));	
+}	

@@ -26,7 +26,12 @@ class Material {
 		~Material(void);
 				
 		virtual RGBAPixel
-		shade(ShadeRec& sr);	
+		shade(ShadeRec& sr);
+
+		virtual RGBAPixel get_Le(ShadeRec& sr);
+
+		virtual RGBAPixel
+		area_light_shade(ShadeRec& sr);	
 		
 	protected:
 	
