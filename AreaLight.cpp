@@ -117,12 +117,11 @@ AreaLight::in_shadow(Ray& ray, const ShadeRec& sr) const {
 	float d =  object_ptr->getCentroid().distance(ray.o);
 	IntersectionInfo I;
     bool hit = sr.w.bvh->getIntersection(ray, &I, false, &temp);
-    float hit_d = ray.o.distance(ray.o+I.t*ray.d);
+    float hit_d = ray.o.distance((ray.o+I.t*ray.d));
 
 
 
     bool hit_light = (I.object == object_ptr);
-
 
     return (!hit_light && hit_d < d);
 }
@@ -147,20 +146,3 @@ AreaLight::pdf( ShadeRec& sr) const {
 	//printf("AreaLight pdf reached\n");
 	return (object_ptr->pdf(sr));
 }
-
-	// float t;
-	// int num_objects = sr.w.objects.size();
-	// float ts = (sample_point - ray.o) * ray.d;
-	
-	// for (int j = 0; j < num_objects; j++)
-	// 	if (sr.w.objects[j]->shadow_hit(ray, t) && t < ts)
-	// 		return (true); 
-		
-	// return (false);   	
-	// if (ray.o.z < -29.5)
-	// {
-	// 	if (!hit_light && hit_d < d )
-	// 	{
-	// 		printf("!!!!!!!!!!reached differ\n");
-	// 	}
-	// }

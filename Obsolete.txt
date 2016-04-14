@@ -355,4 +355,11 @@ Material.o : Material.h Material.cpp rgbapixel.h ShadeRec.h World.h
 	// sphere_ptr5->set_material(matte_ptr2);	// yellow
 	// add_object(sphere_ptr5);
 	
+		// float t;
+	// int num_objects = sr.w.objects.size();
+	// float ts = (sample_point - ray.o) * ray.d;
 	
+	// for (int j = 0; j < num_objects; j++)
+	// 	if (sr.w.objects[j]->shadow_hit(ray, t) && t < ts)
+	// 		return (true); 
+		

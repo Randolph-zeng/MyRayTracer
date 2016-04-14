@@ -50,6 +50,7 @@ public:
 	Pinhole * pinhole_ptr;
 	BVH* bvh;
 	Plane * plane_ptr;
+	int 	max_depth;
 
 	World();
 	virtual ~World();

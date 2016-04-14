@@ -21,7 +21,7 @@ MultipleObjects::~MultipleObjects() {
 
 }
 
-RGBAPixel MultipleObjects::trace_ray(const Ray& ray)const{
+RGBAPixel MultipleObjects::trace_ray( Ray& ray, const int depth)const{
 	//this function will return an ShadeRec object, and sr will be
 	//initialized by copy constructor
 	ShadeRec sr(world_ptr->hit_bare_bones_objects(ray));

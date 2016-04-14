@@ -25,7 +25,7 @@ public:
 	//and its destructor is not virtual, deleting it is undefined behavior regardless
 	//of whether there are resources that would be leaked if the derived destructor is
 	//not invoked.
-	virtual RGBAPixel trace_ray(const Ray& ray) const;
+	virtual RGBAPixel trace_ray( Ray& ray, const int depth) const;
 
 };
 

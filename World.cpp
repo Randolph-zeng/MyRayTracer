@@ -24,6 +24,8 @@
 #include "AreaLight.h"
 #include "Sampler.h" 
 #include "MultiJittered.h"
+#include "Reflective.h"
+#include "PerfectSpecular.h" 
 //#419 end
 #include <fstream>
 #include <sstream>
@@ -40,7 +42,8 @@ World::World(void)
 	:  	background_color(black),
 		tracer_ptr(NULL),
 		ambient_ptr(new Ambient),
-		plane_ptr(NULL)	
+		plane_ptr(NULL),
+		max_depth(1)	
 {}
 
 
@@ -118,9 +121,6 @@ World::clamp_to_color(RGBAPixel& raw_color) const {
 	
 }
 
-
-
-
 // ----------------------------------------------------------------------------- hit_objects
 ShadeRec
 World::hit_objects(Ray& ray) {
@@ -133,19 +133,22 @@ World::hit_objects(Ray& ray) {
 	bool hit_plane = false;
     if (plane_ptr)
     {
-    	float tmin = 0;
-    	if (plane_ptr->hit(ray, tmin,sr) && tmin < I.t){
+    	float tmin = 1000000;
+    	ShadeRec temp = ShadeRec(sr);//avoid changing the normal of sr
+    	if (plane_ptr->hit(ray, tmin,temp) && tmin < I.t){
     		hit_plane = true;
     		sr.t = tmin;
-    		sr.hit_point = ray.o+sr.t*ray.d;
+    		sr.hit_point = ray.o+ tmin*ray.d;
     		sr.material_ptr = plane_ptr->get_material();
     		sr.hit_an_object = true;
+    		sr.normal = temp.normal;
+			sr.local_hit_point = temp.local_hit_point;
     	}
 	 		 
     }
 
 
-	if (hit && !hit_plane)
+	if (hit&& !hit_plane )
 	{
 		sr.t = I.t;
 		sr.hit_point = ray.o+sr.t*ray.d;
@@ -157,21 +160,6 @@ World::hit_objects(Ray& ray) {
 	return (sr);
 }
 
-	// ShadeRec	sr(*this);
-
-	// IntersectionInfo I;
- 	// bool hit = bvh->getIntersection(ray, &I, false,&sr);
-
-	// if (hit)
-	// {
-	// 	sr.t = I.t;
-	// 	sr.hit_point = ray.o+sr.t*ray.d;
-	// 	sr.material_ptr = I.object->get_material();
-	// 	sr.hit_an_object = true;
-	// }
-
-
-	// return (sr);
 
 // ------------------------------------------------------------------ build function!
 void
@@ -180,6 +168,7 @@ World::build(void) {
 	vp.set_hres(400);
 	vp.set_vres(400);
 	vp.set_pixel_size(0.5);
+	max_depth = 3;
 
 	//set tracer
 	//tracer_ptr = new Whitted(this);
@@ -187,18 +176,15 @@ World::build(void) {
 
 	//set Pinhole
 	pinhole_ptr = new Pinhole();
-	pinhole_ptr->set_eye(0, 0, 500);
-	pinhole_ptr->set_lookat(0,0,0);   
-	pinhole_ptr->set_view_distance(850);	
+	pinhole_ptr->set_eye(-50,-50, 100);
+	pinhole_ptr->set_lookat(10,10,-30);   
+	pinhole_ptr->set_view_distance(300);	
 	pinhole_ptr->compute_uvw(); 	
 
 	//set ambient 
 	ambient_ptr = new Ambient();
 	//ambient_ptr->scale_radiance(1.0);
 
-	//set point light
-	// PointLight * pl_ptr = new PointLight(Vector3D(100,50,150),RGBAPixel(255,255,255),3.0);
-	// add_light(pl_ptr);
 
 	//set area light
 	Emissive * emissive_ptr = new Emissive();
@@ -210,7 +196,7 @@ World::build(void) {
 	sampler_ptr->map_samples_to_sphere();
 
 	//set emissive sphere_light
-	Sphere * sphere_light = new Sphere(Point3D(50,50,20),15);
+	Sphere * sphere_light = new Sphere(Point3D(0,0,20),15);
 	sphere_light->set_material(emissive_ptr); 
 	sphere_light->set_sampler(sampler_ptr);
 	add_object(sphere_light);
@@ -233,28 +219,39 @@ World::build(void) {
 	// matte_ptr1->set_exp(15);		
 	// matte_ptr1->set_cd(RGBAPixel(255,0.0,0.0));
 	
+	Reflective * reflective_ptr = new Reflective();
+	reflective_ptr->set_ka(0.25);	
+	reflective_ptr->set_kd(0.65);
+	reflective_ptr->set_ks(0.3);
+	reflective_ptr->set_cd(RGBAPixel(200,200,0));//yellow light
+	reflective_ptr->set_exp(15);		
+	reflective_ptr->set_kr(0.75);		
+	reflective_ptr->set_cr(RGBAPixel(255,255,255));		
+
+
+
 	//testing the bvh 	
 	int number = 1;
 	for (int i = 0; i < number; ++i)
-	{
-		Sphere* sphere_ptr = new Sphere(Point3D(0,0,-25), 10);
-		Matte* matte_ptr1 = new Matte;
-		matte_ptr1->set_cd(RGBAPixel(rand()%200+55,rand()%200+55,rand()%200+55));
-		matte_ptr1->set_ka(0.25);	
-		matte_ptr1->set_kd(0.65);
-		matte_ptr1->set_ks(0.3);
-		matte_ptr1->set_exp(15);
-		sphere_ptr->set_material(matte_ptr1);	// yellow
+	{	
+
+		Sphere* sphere_ptr = new Sphere(Point3D(5,5,-25), 10);
+
+		sphere_ptr->set_material(reflective_ptr);	// yellow
 		add_object(sphere_ptr);
 
-		 sphere_ptr = new Sphere(Point3D(-15,-15,-25), 15);
-		 matte_ptr1 = new Matte;
-		matte_ptr1->set_cd(RGBAPixel(rand()%200+55,rand()%200+55,rand()%200+55));
-		matte_ptr1->set_ka(0.25);	
-		matte_ptr1->set_kd(0.65);
-		matte_ptr1->set_ks(0.3);
-		matte_ptr1->set_exp(15);
-		sphere_ptr->set_material(matte_ptr1);	// yellow
+		sphere_ptr = new Sphere(Point3D(-15,-15,-25), 15);
+
+	reflective_ptr = new Reflective();
+	reflective_ptr->set_ka(0.25);	
+	reflective_ptr->set_kd(0.65);
+	reflective_ptr->set_ks(0.3);
+	reflective_ptr->set_cd(RGBAPixel(0,255,0));//yellow light
+	reflective_ptr->set_exp(15);		
+	reflective_ptr->set_kr(0.75);		
+	reflective_ptr->set_cr(RGBAPixel(255,255,255));	
+
+		sphere_ptr->set_material(reflective_ptr);	// yellow
 		add_object(sphere_ptr);
 
 	}
@@ -278,6 +275,9 @@ World::build(void) {
 
 }
 
+	//set point light
+	// PointLight * pl_ptr = new PointLight(Vector3D(100,50,150),RGBAPixel(255,255,255),3.0);
+	// add_light(pl_ptr);
 
 
 	//read triangles
@@ -310,3 +310,23 @@ World::build(void) {
 
 	// }	
 	// cout << "Read file completed!!" << endl;
+
+
+
+
+
+	// ShadeRec	sr(*this);
+
+	// IntersectionInfo I;
+ 	// bool hit = bvh->getIntersection(ray, &I, false,&sr);
+
+	// if (hit)
+	// {
+	// 	sr.t = I.t;
+	// 	sr.hit_point = ray.o+sr.t*ray.d;
+	// 	sr.material_ptr = I.object->get_material();
+	// 	sr.hit_an_object = true;
+	// }
+
+
+	// return (sr);

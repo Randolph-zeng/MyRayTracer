@@ -18,13 +18,13 @@ int main()
 	std::cout << "World building completed" << std::endl;
 
 	std::cout << "Setting View Parameters" << std::endl;
-	world.set_sample_number(16.0);
+	world.set_sample_number(4.0);
 	world.set_diffuse(0.75,1.0);
 	std::cout << "Parameters setting completed" << std::endl;	
 
 	std::cout << "Generating image....." << std::endl;
 	world.pinhole_ptr->render_scene(world);
-	world.pinhole_ptr->Image->writeToFile("solution2.png");
+	world.pinhole_ptr->Image->writeToFile("solution0.png");
 	delete world.pinhole_ptr->Image;
 	std::cout << "Image drawing completed" << std::endl;
 

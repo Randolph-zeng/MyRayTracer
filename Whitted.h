@@ -21,7 +21,7 @@ class Whitted: public Tracer {
 		~Whitted(void);
 	
 		virtual RGBAPixel	
-		trace_ray( Ray& ray) const;
+		trace_ray( Ray& ray, const int depth) const;
 };
 
 #endif

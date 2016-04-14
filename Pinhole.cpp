@@ -104,7 +104,7 @@ Pinhole::render_scene(const World& world) {
 						double x = s * (c - 0.5 * hres + (q+0.5)/sample_number);
 						double y = s * (r - 0.5 * vres + (p+0.5)/sample_number);
 						ray.o = Point3D(x,y,zw);
-						pixel_color = pixel_color + tracer_ptr->trace_ray(ray);						//
+						pixel_color = pixel_color + tracer_ptr->trace_ray(ray,0);						//
 					}
 								
 				pixel_color = pixel_color/(sample_number*sample_number);
@@ -126,7 +126,7 @@ Pinhole::render_scene(const World& world) {
 						ray.d.normalize();
 						//multiply by the inverse eliminates the shadow don't know why
 						//ray.set_inverse();
-						pixel_color = pixel_color + tracer_ptr->trace_ray(ray);	
+						pixel_color = pixel_color + tracer_ptr->trace_ray(ray,0);	
 					}
 							
 				pixel_color = pixel_color/(sample_number*sample_number);

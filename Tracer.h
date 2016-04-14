@@ -23,9 +23,9 @@ public:
 
 	virtual ~Tracer(); // this destructor should be inherited by all derived class
 
-	virtual RGBAPixel trace_ray(Ray& ray)const; // promise to not changing the ray and other class member
+	//virtual RGBAPixel trace_ray(Ray& ray)const; // promise to not changing the ray and other class member
 
-//	virtual RGBAPixel trace_ray(const Ray& ray, const int depth) const;
+	virtual RGBAPixel trace_ray( Ray& ray, const int depth) const;
 
 //protected because it is accessible by its public derived class
 

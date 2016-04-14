@@ -32,7 +32,7 @@ Whitted::~Whitted(void) {}
 // -------------------------------------------------------------------- trace_ray
 
 RGBAPixel	
-Whitted::trace_ray( Ray& ray) const {		
+Whitted::trace_ray( Ray& ray, const int depth) const {		
 		ShadeRec sr(world_ptr->hit_objects(ray));    
 			
 		if (sr.hit_an_object) {

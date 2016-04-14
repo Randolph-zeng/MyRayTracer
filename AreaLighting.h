@@ -25,7 +25,7 @@ class AreaLighting: public Tracer {
 		// virtual RGBAPixel	
 		// trace_ray(const Ray ray, const int depth) const;
 		virtual RGBAPixel	
-		trace_ray(Ray& ray) const;
+		trace_ray(Ray& ray, const int depth) const;
 		
 		
 };
